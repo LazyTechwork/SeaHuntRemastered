@@ -8,13 +8,14 @@ var player = {
         x: 30,
         y: canvas.height / 2
     },
-    speed: 6,
+    speed: 4,
     points: 0
 };
 
 var game = {
     'isRunning': false,
-    'entity_speed': 3
+    'entity_speed': 3,
+    'isGameOver': false
 };
 
 var keyState = {
@@ -80,36 +81,69 @@ function randomInteger(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
-
-// =============== Preloading ===============
-loadImages({
-    "player": "player.png",
-    "shark": "shark.png",
-    "fish": "fish.png"
-});
-
-// Image scaling
-images['player'].width *= .8;
-images['shark'].width *= 1.3;
-images['fish'].width *= .5;
-images['player'].height *= .8;
-images['shark'].height *= 1.3;
-images['fish'].height *= .5;
-
-player.position.y -= images['player'].height / 2;
+function restartGame() {
+    $('.page-wrapper').fadeOut(100);
+    destroyGame();
+    startGame();
+}
 
 function startGame() {
-    sharkSpawn();
-    fishSpawn();
-    window.requestAnimationFrame(render);
-    $(".page-wrapper").fadeIn();
-    game.isRunning = true;
+    setTimeout(() => {
+        sharkSpawn();
+        fishSpawn();
+        window.requestAnimationFrame(render);
+        game.isRunning = true;
+        $(".page-wrapper").fadeIn();
+    }, 250);
+}
+
+function gameOver() {
+    if (!game.isGameOver) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    showPoints();
+    ctx.font = "100px Roboto";
+    ctx.fillStyle = "yellow";
+    ctx.textAlign = "center";
+    ctx.fillText("Game over", canvas.width / 2, canvas.height / 2);
+    destroyGame();
+}
+
+function showPoints() {
+    ctx.font = "16px Roboto";
+    ctx.fillStyle = "white";
+    ctx.textAlign = "left";
+    ctx.fillText("Points: " + player.points, 20, 30);
+}
+
+function destroyGame() {
+    game.isRunning = false;
+    game.isGameOver = false;
+    keyState = {
+        'left': false,
+        'right': false,
+        'top': false,
+        'bottom': false
+    };
+    sharks = [];
+    fish = [];
+    movableObjects = [];
+    player = {
+        position: {
+            x: 30,
+            y: canvas.height / 2
+        },
+        speed: 4,
+        points: 0
+    };
+    game = {
+        isRunning: false,
+        entity_speed: 3,
+        isGameOver: false
+    };
+    player.position.y -= images['player'].height / 2;
 }
 
 function render() {
-    if (!game.isRunning) {
-        return window.requestAnimationFrame(render);
-    }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (keyState.left) movePlayer(DIRECTION.LEFT);
     if (keyState.right) movePlayer(DIRECTION.RIGHT);
@@ -125,11 +159,7 @@ function render() {
             image: images['shark']
         });
         if (isCollides(shark, images['shark'])) {
-            ctx.font = "100px Roboto";
-            ctx.fillStyle = "yellow";
-            ctx.textAlign = "center";
-            ctx.fillText("Game over", canvas.width / 2, canvas.height / 2);
-            game.isRunning = false;
+            game.isGameOver = true;
         }
     });
     fish.forEach((fishh, i) => {
@@ -147,19 +177,17 @@ function render() {
     });
 
 
-    ctx.lineWidth = 2;
-    movableObjects.forEach(obj => {
-        ctx.strokeRect(obj.obj.x, obj.obj.y, obj.image.width, obj.image.height);
-    });
+    // ctx.lineWidth = 2;
+    // movableObjects.forEach(obj => {
+    //     ctx.strokeRect(obj.obj.x, obj.obj.y, obj.image.width, obj.image.height);
+    // });
 
 
     ctx.drawImage(images['player'], player.position.x, player.position.y, images['player'].width, images['player'].height);
 
-    ctx.font = "16px Roboto";
-    ctx.fillStyle = "white";
-    ctx.textAlign = "left";
-    ctx.fillText("Points: " + player.points, 20, 30);
-    window.requestAnimationFrame(render);
+    showPoints();
+    gameOver();
+    if (game.isRunning) window.requestAnimationFrame(render);
 }
 
 function sharkSpawn() {
@@ -177,13 +205,6 @@ function fishSpawn() {
             y: randomInteger(0, canvas.width - images['fish'].width)
         });
 }
-
-setInterval(() => {
-    sharkSpawn()
-}, 2500);
-setInterval(() => {
-    fishSpawn()
-}, 1500);
 
 document.addEventListener("keydown", e => {
     // console.log(e.keyCode);
@@ -234,3 +255,26 @@ document.addEventListener("keyup", e => {
             break;
     }
 });
+]
+
+// =============== Preloading ===============
+loadImages({
+    "player": "player.png",
+    "shark": "shark.png",
+    "fish": "fish.png"
+});
+
+// Image scaling
+images['player'].width *= .8;
+images['shark'].width *= 1.3;
+images['fish'].width *= .5;
+images['player'].height *= .8;
+images['shark'].height *= 1.3;
+images['fish'].height *= .5;
+
+setInterval(() => {
+    sharkSpawn()
+}, 2500);
+setInterval(() => {
+    fishSpawn()
+}, 1500);
