@@ -7,18 +7,23 @@
 </head>
 <body>
 <div class="page-wrapper">
-    <div class="header"><h1 style="cursor: pointer;" onclick="restartGame()">SeaHunt: Remastered</h1></div>
-    <div class="game">
-        <div class="start-screen"></div>
-        <div class="game-wrapper">
-            <canvas width="800" height="480" id="game">Your browser don't support CANVAS (HTML5 element)</canvas>
-        </div>
-        <div class="death-screen"></div>
+    <div class="loading">
+        <div class="header"><h1>Game is loading... Wait please!</h1></div>
     </div>
-    <div class="copyright">
-        <p>Game version: v1.0</p>
-        <p>Latest revision: 02.03.2019 19.40</p>
-        <p>Copyright <a href="//github.com/LazyTechwork">LazyTechwork (Ivan Petrov)</a> &copy; 2019</p>
+    <div class="hiddable-content">
+        <div class="header"><h1 style="cursor: pointer;" onclick="restartGame()">SeaHunt: Remastered</h1></div>
+        <div class="game">
+            <div class="start-screen"></div>
+            <div class="game-wrapper">
+                <canvas width="800" height="480" id="game">Your browser don't support CANVAS (HTML5 element)</canvas>
+            </div>
+            <div class="death-screen"></div>
+        </div>
+        <div class="copyright">
+            <p>Game version: v1.0</p>
+            <p>Latest revision: 02.03.2019</p>
+            <p>Copyright <a href="//github.com/LazyTechwork">LazyTechwork (Ivan Petrov)</a> &copy; 2019</p>
+        </div>
     </div>
 </div>
 <script src="assets/js/jquery.js"></script>

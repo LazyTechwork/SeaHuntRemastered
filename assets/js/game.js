@@ -1,6 +1,6 @@
 // Canvas and context definitions
 var canvas = document.getElementById("game");
-$(".page-wrapper").hide();
+$(".hiddable-content").hide();
 var ctx = canvas.getContext("2d");
 
 var player = {
@@ -45,7 +45,10 @@ function loadImages(imageArray) {
         images[key].src = "assets/img/" + imageArray[key];
         images[key].onload = function () {
             loaded++;
-            if (loaded >= needToBeLoaded) setTimeout(startGame, 350);
+            if (loaded >= needToBeLoaded) setTimeout(() => {
+                $(".loading").fadeOut(250);
+                setTimeout(startGame, 300);
+            }, 2500);
         };
     }
 }
@@ -82,7 +85,7 @@ function randomInteger(min, max) {
 }
 
 function restartGame() {
-    $('.page-wrapper').fadeOut(100);
+    $('.hiddable-content').fadeOut(100);
     destroyGame();
     startGame();
 }
@@ -93,7 +96,7 @@ function startGame() {
         fishSpawn();
         window.requestAnimationFrame(render);
         game.isRunning = true;
-        $(".page-wrapper").fadeIn();
+        $(".hiddable-content").fadeIn();
     }, 250);
 }
 
