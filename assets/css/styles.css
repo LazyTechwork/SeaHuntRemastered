@@ -1,0 +1,9 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; font-family: 'Roboto', sans-serif; background: #eee; }
+.page-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; }
+.page-wrapper .header { margin-bottom: 25px; font-size: 18pt; color: steelblue; }
+.page-wrapper .copyright { margin-top: 15px; font-size: 8pt; color: steelblue; font-weight: bold; text-align: center; }
+.page-wrapper .copyright p { display: inline-block; }
+.game-wrapper canvas { box-shadow: 0 0 15px 5px steelblue; width: 800px; height: 480px; background: url("../img/background.jpg") center / cover no-repeat; }
