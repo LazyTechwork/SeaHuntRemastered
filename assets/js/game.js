@@ -6,7 +6,7 @@ var ctx = canvas.getContext("2d");
 var player = {
     position: {
         x: 30,
-        y: canvas.height/2
+        y: canvas.height / 2
     },
     speed: 2,
     points: 0
@@ -70,12 +70,11 @@ function movePlayer(direction) {
 }
 
 function isInRange(x1, x2, x3, x4) {
-    console.log((x1 >= x3 || x1 <= x4 || x2 >= x3 || x2 <= x4));
-    return x1 >= x3 || x1 <= x4 || x2 >= x3 || x2 <= x4;
+    return (x1 >= x3 && x1 <= x4) || (x2 >= x3 && x2 <= x4);
 }
 
 function isCollides(enemy, eImg) {
-    return isInRange(player.x, player.x + images['player'].width, enemy.x, enemy.x + eImg.width) && isInRange(player.y, player.y + images['player'].height, enemy.y, enemy.y + eImg.height);
+    return isInRange(player.position.x, player.position.x + images['player'].width, enemy.x, enemy.x + eImg.width) && isInRange(player.position.y, player.y + images['player'].height, enemy.y, enemy.y + eImg.height);
 }
 
 function randomInteger(min, max) {
@@ -95,10 +94,10 @@ images['player'].height *= .8;
 images['shark'].height *= 1.3;
 images['fish'].height *= .5;
 
-player.position.y -= images['player'].height/2;
+player.position.y -= images['player'].height / 2;
 
 function render() {
-    if(!game.isRunning) return window.requestAnimationFrame(render);
+    if (!game.isRunning) return window.requestAnimationFrame(render);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (keyState.left) movePlayer(DIRECTION.LEFT);
     if (keyState.right) movePlayer(DIRECTION.RIGHT);
@@ -109,20 +108,29 @@ function render() {
         shark.x--;
         ctx.drawImage(images['shark'], shark.x, shark.y, images['shark'].width, images['shark'].height);
         if (shark.x < -images['shark'].width) sharks.splice(i, 1);
-        if (isCollides(shark, images['shark'])) location.refresh();
+        if (isCollides(shark, images['shark'])) {
+            ctx.font = "100px Roboto";
+            ctx.fillStyle = "yellow";
+            ctx.textAlign = "center";
+            ctx.fillText("Game over", canvas.width / 2, canvas.height / 2);
+            game.isRunning = false;
+        }
     });
     fish.forEach((fishh, i) => {
         fishh.x--;
         ctx.drawImage(images['fish'], fishh.x, fishh.y, images['fish'].width, images['fish'].height);
-        if (isCollides(fishh, images['fish'])) player.points++;
         if (fishh.x < -images['fish'].width) fish.splice(i, 1);
+        if (isCollides(fishh, images['fish'])) {
+            fish.splice(i, 1);
+            player.points++;
+        }
     });
     ctx.drawImage(images['player'], player.position.x, player.position.y, images['player'].width, images['player'].height);
 
-    ctx.font = "14pt Roboto";
+    ctx.font = "16px Roboto";
     ctx.fillStyle = "white";
-    ctx.textAlign = "right";
-    ctx.fillText("Points: "+player.points, canvas.width-10, 20);
+    ctx.textAlign = "left";
+    ctx.fillText("Points: " + player.points, 20, 30);
     window.requestAnimationFrame(render);
 }
 
