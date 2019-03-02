@@ -255,7 +255,6 @@ document.addEventListener("keyup", e => {
             break;
     }
 });
-]
 
 // =============== Preloading ===============
 loadImages({
