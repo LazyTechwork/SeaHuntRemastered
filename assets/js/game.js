@@ -8,12 +8,13 @@ var player = {
         x: 30,
         y: canvas.height / 2
     },
-    speed: 2,
+    speed: 6,
     points: 0
 };
 
 var game = {
-    'isRunning': true
+    'isRunning': false,
+    'entity_speed': 3
 };
 
 var keyState = {
@@ -23,7 +24,7 @@ var keyState = {
     'bottom': false
 };
 
-var images = [], sharks = [], fish = [];
+var images = [], sharks = [], fish = [], movableObjects = [];
 
 // Utilities
 const DIRECTION = {
@@ -43,9 +44,7 @@ function loadImages(imageArray) {
         images[key].src = "assets/img/" + imageArray[key];
         images[key].onload = function () {
             loaded++;
-            if (loaded >= needToBeLoaded) setTimeout(() => {
-                $(".page-wrapper").fadeIn()
-            }, 350);
+            if (loaded >= needToBeLoaded) setTimeout(startGame, 350);
         };
     }
 }
@@ -69,24 +68,27 @@ function movePlayer(direction) {
     }
 }
 
-function isInRange(x1, x2, x3, x4) {
-    return (x1 >= x3 && x1 <= x4) || (x2 >= x3 && x2 <= x4);
+function isInRange(min1, min2, rangeIn, rangeOut) {
+    return (min1 >= rangeIn && min1 <= rangeOut) || (min2 >= rangeIn && min2 <= rangeOut);
 }
 
 function isCollides(enemy, eImg) {
-    return isInRange(player.position.x, player.position.x + images['player'].width, enemy.x, enemy.x + eImg.width) && isInRange(player.position.y, player.y + images['player'].height, enemy.y, enemy.y + eImg.height);
+    return isInRange(player.position.x, player.position.x + images['player'].width, enemy.x, enemy.x + eImg.width) && isInRange(player.position.y - images['player'].height, player.position.y, enemy.y - eImg.height, enemy.y);
 }
 
 function randomInteger(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
+
+// =============== Preloading ===============
 loadImages({
     "player": "player.png",
     "shark": "shark.png",
     "fish": "fish.png"
 });
 
+// Image scaling
 images['player'].width *= .8;
 images['shark'].width *= 1.3;
 images['fish'].width *= .5;
@@ -96,18 +98,32 @@ images['fish'].height *= .5;
 
 player.position.y -= images['player'].height / 2;
 
+function startGame() {
+    sharkSpawn();
+    fishSpawn();
+    window.requestAnimationFrame(render);
+    $(".page-wrapper").fadeIn();
+    game.isRunning = true;
+}
+
 function render() {
-    if (!game.isRunning) return window.requestAnimationFrame(render);
+    if (!game.isRunning) {
+        return window.requestAnimationFrame(render);
+    }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (keyState.left) movePlayer(DIRECTION.LEFT);
     if (keyState.right) movePlayer(DIRECTION.RIGHT);
     if (keyState.bottom) movePlayer(DIRECTION.BOTTOM);
     if (keyState.top) movePlayer(DIRECTION.TOP);
-    // player.position.x++; player.position.y++;
+    movableObjects = [{obj: {x: player.position.x, y: player.position.y}, image: images['player']}];
     sharks.forEach((shark, i) => {
-        shark.x--;
+        shark.x -= game.entity_speed;
         ctx.drawImage(images['shark'], shark.x, shark.y, images['shark'].width, images['shark'].height);
         if (shark.x < -images['shark'].width) sharks.splice(i, 1);
+        movableObjects.push({
+            obj: shark,
+            image: images['shark']
+        });
         if (isCollides(shark, images['shark'])) {
             ctx.font = "100px Roboto";
             ctx.fillStyle = "yellow";
@@ -117,14 +133,26 @@ function render() {
         }
     });
     fish.forEach((fishh, i) => {
-        fishh.x--;
+        fishh.x -= game.entity_speed;
         ctx.drawImage(images['fish'], fishh.x, fishh.y, images['fish'].width, images['fish'].height);
         if (fishh.x < -images['fish'].width) fish.splice(i, 1);
+        movableObjects.push({
+            obj: fishh,
+            image: images['fish']
+        });
         if (isCollides(fishh, images['fish'])) {
             fish.splice(i, 1);
             player.points++;
         }
     });
+
+
+    ctx.lineWidth = 2;
+    movableObjects.forEach(obj => {
+        ctx.strokeRect(obj.obj.x, obj.obj.y, obj.image.width, obj.image.height);
+    });
+
+
     ctx.drawImage(images['player'], player.position.x, player.position.y, images['player'].width, images['player'].height);
 
     ctx.font = "16px Roboto";
@@ -135,17 +163,19 @@ function render() {
 }
 
 function sharkSpawn() {
-    sharks.push({
-        x: canvas.width + images['shark'].width,
-        y: randomInteger(0, canvas.width - images['shark'].width)
-    });
+    if (game.isRunning)
+        sharks.push({
+            x: canvas.width + images['shark'].width,
+            y: randomInteger(0, canvas.width - images['shark'].width)
+        });
 }
 
 function fishSpawn() {
-    fish.push({
-        x: canvas.width + images['fish'].width,
-        y: randomInteger(0, canvas.width - images['fish'].width)
-    });
+    if (game.isRunning)
+        fish.push({
+            x: canvas.width + images['fish'].width,
+            y: randomInteger(0, canvas.width - images['fish'].width)
+        });
 }
 
 setInterval(() => {
@@ -204,7 +234,3 @@ document.addEventListener("keyup", e => {
             break;
     }
 });
-
-sharkSpawn();
-fishSpawn();
-window.requestAnimationFrame(render);
